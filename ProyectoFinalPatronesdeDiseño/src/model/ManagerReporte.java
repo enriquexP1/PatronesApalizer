@@ -32,18 +32,18 @@ public class ManagerReporte {
     ArrayList<String> seccionesPA = null;
     String ruta;
     String extension;
-    String rutaDestino;
+    
     public ManagerReporte() {
         this.managerArch = new ManagerArchivo();
     }
-    public void generarProceso(String Formatin , String ProductA , String rutaDestino)
+    public void generarProceso(String Formatin , String ProductA ) throws IOException
     {
         leerFormato(Formatin);
         leerPA(ProductA);
         Comparar();
-        this.rutaDestino=rutaDestino;
         
-        generarReporte(rutaDestino);
+        
+        generarReporte();
     }
     public Formato leerFormato(String archivo) {
         ruta = managerArch.corregirRuta(archivo);
@@ -54,7 +54,7 @@ public class ManagerReporte {
         if (extension.compareTo("pdf") == 0) {
             //Aqui necesito que mande a llamar a un formato del manager Archivo
             System.out.println("aqui vamos a leer el pdf");
-            formato = managerArch.tomarFormatoPDF(archivo);
+            formato = managerArch.tomarFormatoPDF(ruta);
             System.out.println(formato.toString());
             seccionesFormato = formato.getSecciones();
             for (int i = 0; i < seccionesFormato.size(); i++) {
@@ -62,7 +62,7 @@ public class ManagerReporte {
             }
 
         } else if (extension.compareTo("docx") == 0) {
-            formato = managerArch.tomarFormatoWord(archivo);
+            formato = managerArch.tomarFormatoWord(ruta);
             System.out.println(formato.toString());
             seccionesFormato = formato.getSecciones();
             for (int i = 0; i < seccionesFormato.size(); i++) {
@@ -85,7 +85,7 @@ public class ManagerReporte {
             //Aqui necesito que mande a llamar a un formato del manager Archivo
             System.out.println("aqui vamos a leer el pdf");
 
-            PA = managerArch.tomarPAPDF(archivo);
+            PA = managerArch.tomarPAPDF(ruta);
             System.out.println(PA.toString());
             seccionesFormato = PA.getSeccionesFormato();
             seccionesPA = PA.getSeccionesPA();
@@ -95,7 +95,7 @@ public class ManagerReporte {
 
         } else if (extension.compareTo("docx") == 0) {
 
-            PA = managerArch.tomarPAWord(archivo);
+            PA = managerArch.tomarPAWord(ruta);
             System.out.println(PA.toString());
             seccionesPA = PA.getSeccionesPA();
             seccionesFormato = PA.getSeccionesFormato();
@@ -116,25 +116,23 @@ public class ManagerReporte {
       }
    }
     
-    public void generarReporte(String rutaDestino)
+    public void generarReporte() throws IOException
     {
+       ReportePdf reporte = new ReportePdf();
+       reporte.setNombrePA(".\\reportes\\reporte.pdf");
+       reporte.setRutaDestino(reporte.getNombrePA());
        
         
+        
         try {
-            ReportePdf reporte = new ReportePdf();
-            reporte.setRutaDestino(rutaDestino);
-            
-            reporte.setNombrePA(PA.getNombre());
-            
-            reporte.setSeccionPA(PA.getSeccionesFormato());
+     
+         
         
-        String rutaDestino2= managerArch.corregirRuta(reporte.getRutaDestino()) + "/";
-        rutaDestino2 +=  "reporteFinal.pdf";
-        
-            
-        
-           PdfDocument pdfDoc = new PdfDocument(new PdfWriter(rutaDestino2));
-             //2. Creacion del docuemnto como objeto
+         //1. Creacion del PDF
+         PdfDocument pdfDoc
+                 = new PdfDocument(new PdfWriter(reporte.getNombrePA()));
+         
+         //2. Creacion del docuemnto como objeto
          Document doc = new Document(pdfDoc);
          
          //3. Creando tabla
@@ -144,7 +142,7 @@ public class ManagerReporte {
          //4. Añadimos las celas a la tabla
          table.addCell("Formato");
          table.addCell("Cumplido");
-         for (Seccion seccion : reporte.getSeccionPA()) {
+         for (Seccion seccion : seccionesFormato) {
             table.addCell(seccion.getNombre());
             if (seccion.isCumplido()) {
                table.addCell("Si");
@@ -158,6 +156,11 @@ public class ManagerReporte {
          
          //7. Cerramos el documento
          doc.close();
+         //8. Abrimos el archivo
+          File archivoPDF = new File(reporte.getNombrePA());
+            // Se sustituye la ruta por la ruta absoluta obtenida del objeto File
+            Process p = Runtime.getRuntime().exec ("rundll32 SHELL32.DLL,"
+                    + "ShellExec_RunDLL " + archivoPDF.getAbsolutePath());
         } catch (FileNotFoundException ex) {
             Logger.getLogger(ManagerReporte.class.getName()).log(Level.SEVERE, null, ex);
         }

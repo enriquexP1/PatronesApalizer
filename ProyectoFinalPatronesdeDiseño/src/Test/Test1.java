@@ -17,8 +17,8 @@ public class Test1 {
         ManagerReporte man = new ManagerReporte();
         String formato = "C:\\Users\\enriq\\OneDrive - Universidad Autónoma Metropolitana Unidad Azcapotzalco\\Escuela\\Trimestre 22i\\Patrones de diseño\\pruebas proyectoi\\PatronesDSub1-main\\PatronesDSub1-main\\holin2.docx";
         String PA = "C:\\Users\\enriq\\OneDrive - Universidad Autónoma Metropolitana Unidad Azcapotzalco\\Escuela\\Trimestre 22i\\Patrones de diseño\\pruebas proyectoi\\PatronesDSub1-main\\PatronesDSub1-main\\holin2.pdf";
-        String rutaDest = "‪‪C:\\Users\\enriq\\Downloads\\";
-        man.generarProceso(formato,PA,rutaDest);
+        String rutaDest = "‪‪.\\C:\\Users\\enriq\\OneDrive - Universidad Autónoma Metropolitana Unidad Azcapotzalco\\Escuela\\Trimestre 22i\\Patrones de diseño\\pruebas proyectoi\\ProyectoFinalPatronesdeDiseño\\reportes";
+        man.generarProceso(formato,PA);
       
     }
 }
