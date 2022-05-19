@@ -41,6 +41,7 @@ public class ManagerArchivo {
 
     public String corregirRuta(String ruta) {
         String x = ruta.replaceAll("\\\\", "/");
+      
         return x;
     }
 
@@ -192,7 +193,7 @@ public class ManagerArchivo {
                     getDocumentOutline();
             productoAcSecciones(documentPDF, outline);
             documentPDF.close();
-            PA.setSeccionesPA(seccionesPA);
+            PA.setSeccionesFormato(secciones);
             construirSeccionesPDF(archivo);
         } catch (IOException e) {
             System.err.println("Error al leer o escribir en el archivo con la ruta especificada");

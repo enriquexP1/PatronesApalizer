@@ -4,12 +4,19 @@
  */
 package model;
 
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Table;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FilenameUtils;
+
+
 
 /**
  *
@@ -25,11 +32,19 @@ public class ManagerReporte {
     ArrayList<String> seccionesPA = null;
     String ruta;
     String extension;
-
+    String rutaDestino;
     public ManagerReporte() {
         this.managerArch = new ManagerArchivo();
     }
-
+    public void generarProceso(String Formatin , String ProductA , String rutaDestino)
+    {
+        leerFormato(Formatin);
+        leerPA(ProductA);
+        Comparar();
+        this.rutaDestino=rutaDestino;
+        
+        generarReporte(rutaDestino);
+    }
     public Formato leerFormato(String archivo) {
         ruta = managerArch.corregirRuta(archivo);
         extension = managerArch.DiferenciarFormato(archivo);
@@ -91,5 +106,63 @@ public class ManagerReporte {
             System.out.println("Aún no soportamos este tipo de archivo");
         }
         return PA;
+    }
+    
+    public void Comparar(){
+      for(Seccion seccion : PA.getSeccionesFormato()){
+         if(seccion.isCumplido() && seccion.getNumPalabras() == 0){
+            seccion.setCumplido(false);
+         }
+      }
+   }
+    
+    public void generarReporte(String rutaDestino)
+    {
+       
+        
+        try {
+            ReportePdf reporte = new ReportePdf();
+            reporte.setRutaDestino(rutaDestino);
+            
+            reporte.setNombrePA(PA.getNombre());
+            
+            reporte.setSeccionPA(PA.getSeccionesFormato());
+        
+        String rutaDestino2= managerArch.corregirRuta(reporte.getRutaDestino()) + "/";
+        rutaDestino2 +=  "reporteFinal.pdf";
+        
+            
+        
+           PdfDocument pdfDoc = new PdfDocument(new PdfWriter(rutaDestino2));
+             //2. Creacion del docuemnto como objeto
+         Document doc = new Document(pdfDoc);
+         
+         //3. Creando tabla
+         // Table(2) -> Indica que la tabla tendra dos columnas
+         Table table = new Table(2);
+         
+         //4. Añadimos las celas a la tabla
+         table.addCell("Formato");
+         table.addCell("Cumplido");
+         for (Seccion seccion : reporte.getSeccionPA()) {
+            table.addCell(seccion.getNombre());
+            if (seccion.isCumplido()) {
+               table.addCell("Si");
+            } else {
+               table.addCell("No");
+            }
+         }
+         
+         //6. Añadimos la tabla al docuemento
+         doc.add(table);
+         
+         //7. Cerramos el documento
+         doc.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ManagerReporte.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         
+        
+        
     }
 }
